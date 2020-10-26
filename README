@@ -1,0 +1,61 @@
+README for Conditional Random Field Project
+Andrew Roberts
+4/1/2018
+
+OVERVIEW
+This project contains three primary files (LinearCRF.scala, Parser.scala, and Main.scala) which provide
+functionality to parse a file containing labeled text, train Linear Chain Conditional Random Field, and 
+predict the labels on a test set using the optimized parameters. The files are coded in Scala, making use of
+the Breeze Linear Algebra and Optimization libraries. SBT is used as a build tool.  
+
+FILES
+
+Parser.scala
+This file implements a Parser object that converts an input file into usable training and testing data. The data must
+be of the form: 
+
+Word1 Label1 Label2
+Word2 Label1 Label2
+. . 0
+
+where a blank line follows each sentence. For this project, I am only interested in the first column of labels. Furthermore, 
+I only consider NOUN, VERB, and OTHER as labels. Parser makes these alterations, forms training and test sets, and stores
+the data as an array of word-label tuples. 
+
+LinearCRF.scala
+This file implements a LinearCRF object with the functionality to train a linear chain CRF and test its prediction accuracy. 
+In its current form it has six simple feature functions. 
+
+Main.scala
+This file contains the main "function" which ties together the two previous files. It feeds the data through the CRF pipeline, 
+first calling functions from Parser, then from LinearCRF to ultimately train and predict using the CRF. 
+
+build.sbt
+Includes dependency for Breeze library; required to be able to run program
+
+IMPORTANT PARAMETERS
+
+k: The number of term-label pairs in each training example. This is currently set at 3. In order to alter this two modifications
+   need to be made: 1.) Change the val k = 3 to desired k at the top of Main.scala. 2.) In the LinearCRF functions
+   predictionAccuracy and LikelihoodGradient add a fourth nested loop over y (the labels)
+
+m: The number of feature functions. In order to change this 3 modifications must be made: 1.) Change val m = 6 to desired m at the top
+   of Main.scala and LinearCRF.scala 2.) Add/take away feature function definitions 3.) Adjust f_list, the list of the feature functions
+   in LinearCRF.scala
+
+n: Number of training observations
+
+n_test: Number of testing observations
+
+sigma_sq: Parameter to be used in regularization term in penalized gradient ascent (currently set at a common value of 10) 
+
+RESULTS
+In its current state this model achieves a predictive accuracy of about 44%. This is calculated on a per-word basis. Therefore, randomly guessing
+the label of each work would be expected to yield a predictive accuracy of about 33%. This model certainly outperforms the random guesser, but does 
+not come close to the accuracies of the state-of-the-art models currently in use. This is to be expected seeing as this is a very simplified implementation
+using very basic feature functions. 
+
+Note: The size of the training and testing sets used here are 5000 and 1000 observations, respectively
+	  Running the model in its current state requires around 20-25 minutes (training and testing included)
+	  The data can be found at: https://www.clips.uantwerpen.be/conll2000/chunking/
+	
